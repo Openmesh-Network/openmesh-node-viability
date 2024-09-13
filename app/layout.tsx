@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 
 import "./globals.css"
 
+import { Suspense } from "react"
 import Sidebar from "@/components/sidebar"
 
 const geistSans = localFont({
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} flex font-sans antialiased`}>
-        <Sidebar />
+        <Suspense fallback={<div className="sticky top-0 h-screen w-64" />}>
+          <Sidebar />
+        </Suspense>
         <main className="grow bg-gray-50">{children}</main>
       </body>
     </html>
