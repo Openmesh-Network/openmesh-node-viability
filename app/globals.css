@@ -5,13 +5,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
+  --primary: 219 100% 50%;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --chart: #16a34a;
 }
 
 body {
@@ -23,5 +19,11 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
   }
 }
