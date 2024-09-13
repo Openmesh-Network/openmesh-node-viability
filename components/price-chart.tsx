@@ -26,6 +26,7 @@ import {
   type DailyData,
   type ProviderData,
 } from "@/lib/random-generate"
+import { cn } from "@/lib/utils"
 import { Server } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
@@ -78,7 +79,7 @@ export function PriceChart({ chain }: PriceChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload as ChartDataItem
       return (
-        <div className="max-w-xs rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 shadow-md dark:border-gray-800 dark:bg-gray-950">
+        <div className="max-w-xs rounded-lg border border-gray-200 bg-white p-2.5 shadow-md dark:border-gray-800 dark:bg-gray-950">
           <p className="font-medium text-gray-600">{label}</p>
           <p className="text-sm font-semibold">
             <span>{chainName}</span> Price: ${data.price.toFixed(2)}
@@ -90,19 +91,44 @@ export function PriceChart({ chain }: PriceChartProps) {
             <p>Net</p>
             {visibleProviders.map((provider) => {
               const Icon = Icons[provider as keyof typeof Icons] ?? Server
+              const operationalCost = data[provider].operationalCost
+              const revenue = data[provider].returns * data.price
+
+              const highlightProvider = provider === "openmesh"
+
+              const net = revenue - operationalCost
               return (
                 <Fragment key={provider.toLowerCase()}>
-                  <div className="inline-flex items-center justify-center rounded-md bg-gray-50 p-1">
-                    <Icon className="size-5 text-gray-500" />
+                  <div
+                    className={cn(
+                      "inline-flex items-center justify-center rounded-md border p-1",
+                      highlightProvider
+                        ? "bg-primary/10 border-primary/50"
+                        : "bg-gray-50",
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "size-5",
+                        highlightProvider ? "text-primary" : "text-gray-500",
+                      )}
+                    />
                   </div>
                   <p className="self-center text-sm text-gray-500">
-                    ${data[provider].operationalCost.toFixed(2)}
+                    ${operationalCost.toFixed(2)}
                   </p>
                   <p className="self-center text-sm text-gray-500">
-                    ${data[provider].returns.toFixed(2)}
+                    ${revenue.toFixed(2)}
                   </p>
-                  <p className="self-center text-sm text-gray-500">
-                    ${data[provider].netProfit.toFixed(2)}
+                  <p
+                    className={cn(
+                      "self-center text-sm font-medium",
+                      net === 0 && "text-gray-500",
+                      net > 0 && "text-green-600",
+                      net < 0 && "text-red-600",
+                    )}
+                  >
+                    ${net.toFixed(2)}
                   </p>
                 </Fragment>
               )

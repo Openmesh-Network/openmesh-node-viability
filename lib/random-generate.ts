@@ -3,7 +3,6 @@ import { ChainData } from "@/config/chains"
 export type ProviderData = {
   operationalCost: number
   returns: number
-  netProfit: number
 }
 
 export type DailyData = {
@@ -22,7 +21,8 @@ export function generateYearlyData({
   operationalCosts,
 }: ChainData): DailyData[] {
   const yearlyData: DailyData[] = []
-  const startDate = new Date("2024-01-01")
+  const startDate = new Date()
+  startDate.setFullYear(2023)
 
   const randomShift = Math.random() * 4
   for (let i = 0; i < 365; i++) {
@@ -64,6 +64,5 @@ function calculateProviderData(
   return {
     operationalCost,
     returns,
-    netProfit: returns - operationalCost,
   }
 }
