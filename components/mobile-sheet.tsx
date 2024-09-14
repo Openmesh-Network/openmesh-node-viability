@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { chainNames, chains } from "@/config/chains"
 import { cn } from "@/lib/utils"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Coins, Menu } from "lucide-react"
+import { Coins, PanelLeftOpen } from "lucide-react"
 import { z } from "zod"
 
 import { Icons } from "./icons"
@@ -51,13 +51,13 @@ export default function MobileSheet() {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-          <Menu className="h-5 w-5" />
+          <PanelLeftOpen className="size-5" />
           <span className="sr-only">Toggle navigation menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col">
+        <SheetTitle>Chose your Chain</SheetTitle>
         <VisuallyHidden>
-          <SheetTitle>Mobile Sheet Navigation</SheetTitle>
           <SheetDescription>
             The mobile navigation menu for the different chains and their
             corresponding price histories.
