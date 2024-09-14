@@ -103,7 +103,7 @@ export function PriceChart({ chain }: PriceChartProps) {
                     className={cn(
                       "inline-flex items-center justify-center rounded-md border p-1",
                       highlightProvider
-                        ? "bg-primary/10 border-primary/50"
+                        ? "border-primary/50 bg-primary/10"
                         : "bg-gray-50",
                     )}
                   >
@@ -168,7 +168,10 @@ export function PriceChart({ chain }: PriceChartProps) {
             )
           })}
         </div>
-        <ChartContainer className="h-[32rem] w-full" config={chartConfig}>
+        <ChartContainer
+          className="h-48 w-full sm:h-80 lg:h-[32rem]"
+          config={chartConfig}
+        >
           <AreaChart
             accessibilityLayer
             data={sheetData}
@@ -185,7 +188,8 @@ export function PriceChart({ chain }: PriceChartProps) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              interval={32}
+              interval="preserveStartEnd"
+              minTickGap={96}
               tickFormatter={(value) => value.slice(0, 3)}
             />
             <YAxis

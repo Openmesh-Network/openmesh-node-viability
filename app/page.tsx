@@ -15,9 +15,11 @@ export default function Home({ searchParams }: PageParams) {
     .parse(chain?.replace(/-./g, (match) => match[1].toUpperCase()))
 
   return (
-    <div className="container my-20">
-      <h1 className="text-4xl font-bold">Web3 Node-as-a-service economics</h1>
-      <p className="text-2xl font-light text-gray-600">
+    <>
+      <h1 className="text-3xl font-bold lg:text-4xl">
+        Web3 Node-as-a-service economics
+      </h1>
+      <p className="text-xl font-light text-gray-600 lg:text-2xl">
         Node operation economic viability is key to maintaining decentralization
         and efficiency in the Web3 ecosystem, ensuring sustainable incentives,
         network security, and scalability.
@@ -92,6 +94,6 @@ export default function Home({ searchParams }: PageParams) {
           className="rounded-lg border object-contain"
         />
       </div>
-    </div>
+    </>
   )
 }

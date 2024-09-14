@@ -10,7 +10,10 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1rem",
+        lg: "2rem",
+      },
     },
     extend: {
       fontFamily: { sans: ["var(--font-geist-sans)", ...fontFamily.sans] },
