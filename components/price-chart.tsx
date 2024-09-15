@@ -35,7 +35,7 @@ import {
 } from "@/lib/random-generate"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { Check, ChevronsUpDown, Server } from "lucide-react"
+import { Check, ChevronsUpDown, PlusCircle, Server } from "lucide-react"
 import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import { Icons } from "./icons"
@@ -49,6 +49,7 @@ import {
   CommandList,
 } from "./ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { Separator } from "./ui/separator"
 
 type ChartDataItem = Pick<DailyData, "date" | "price"> & {
   [key in Provider]: ProviderData
@@ -74,6 +75,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
 
   const chainChartData = chainData[optimisticChain]
   const chainName = chainNames[optimisticChain]
+  const ChainIcon = Icons[optimisticChain as keyof typeof Icons]
 
   const chartConfig = useMemo(() => {
     const config: ChartConfig = {
@@ -246,7 +248,10 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-56 justify-between">
-                {chainName}
+                <span className="flex items-center gap-1.5">
+                  <ChainIcon className="size-4" />
+                  {chainName}
+                </span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -284,9 +289,44 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
           </Popover>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-56 justify-between">
-                Select providers
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <Button
+                variant="outline"
+                className={cn(
+                  "min-w-56 justify-between",
+                  optimisticCompare?.size && "border-dashed",
+                )}
+              >
+                <span className="flex">
+                  <span className="flex items-center gap-2">
+                    <PlusCircle className="size-4" />
+                    Providers
+                  </span>
+                  {optimisticCompare?.size ? (
+                    <>
+                      <span className="mx-2 my-1 block">
+                        <Separator orientation="vertical" />
+                      </span>
+                      <span className="flex gap-1.5">
+                        {Array.from(optimisticCompare ?? []).map((provider) => {
+                          const Icon = Icons[provider as keyof typeof Icons]
+                          return (
+                            <span
+                              key={`selected-provider-${provider}`}
+                              className="flex size-7 items-center justify-center rounded border"
+                            >
+                              {Icon ? (
+                                <Icon className="size-4" />
+                              ) : (
+                                <Server className="size-4 text-gray-600" />
+                              )}
+                              <span className="sr-only">{provider}</span>
+                            </span>
+                          )
+                        })}
+                      </span>
+                    </>
+                  ) : null}
+                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
