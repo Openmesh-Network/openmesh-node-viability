@@ -53,7 +53,7 @@ type ChartDataItem = Pick<DailyData, "date" | "price"> & {
   [key in Provider]: ProviderData
 }
 
-function calculateProviderReturns(
+function calculateProviderProfits(
   operationalCost: number,
   tokenReturn: number,
   currentPrice: number,
@@ -101,14 +101,14 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
         [key in Provider]?: number
       } = {
         ...value,
-        openmesh: calculateProviderReturns(
+        openmesh: calculateProviderProfits(
           chainChartData.operationalCosts.openmesh,
           chainChartData.avgReward,
           value.price,
         ),
       }
       optimisticCompare?.forEach((provider) => {
-        dataPoint[provider] = calculateProviderReturns(
+        dataPoint[provider] = calculateProviderProfits(
           chainChartData.operationalCosts[provider],
           chainChartData.avgReward,
           value.price,
@@ -184,11 +184,11 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
             {Array.from(optimisticCompare ?? []).map((provider) => {
               const Icon = Icons[provider as keyof typeof Icons] ?? Server
               const operationalCost = chainChartData.operationalCosts[provider]
-              const revenue = data[provider]
+              const net = data[provider]
+              const revenue = net + operationalCost
 
               const highlightProvider = provider === "openmesh"
 
-              const net = revenue - operationalCost
               return (
                 <Fragment key={provider.toLowerCase()}>
                   <div
