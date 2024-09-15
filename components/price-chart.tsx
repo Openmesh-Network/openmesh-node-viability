@@ -236,14 +236,14 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="max-md:-mx-4 max-md:rounded-none">
+      <CardHeader className="max-md:px-4">
         <CardTitle>{chainName} Price Chart</CardTitle>
         <CardDescription>
           Showing {chainName} price and corresponding provider revenue.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="max-md:px-4">
         <div className="mb-4 flex flex-wrap gap-4">
           <Popover>
             <PopoverTrigger asChild>
@@ -363,7 +363,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
           </Popover>
         </div>
         <ChartContainer
-          className="h-48 w-full sm:h-80 lg:h-[32rem]"
+          className="h-56 w-full sm:h-80 lg:h-[32rem]"
           config={chartConfig}
         >
           <LineChart
