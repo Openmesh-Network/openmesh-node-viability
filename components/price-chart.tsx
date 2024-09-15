@@ -184,50 +184,53 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
             <p>Server Cost</p>
             <p>Revenue</p>
             <p>Net</p>
-            {Array.from(optimisticCompare ?? []).map((provider) => {
-              const Icon = Icons[provider as keyof typeof Icons] ?? Server
-              const operationalCost = chainChartData.operationalCosts[provider]
-              const net = data[provider]
-              const revenue = net + operationalCost
+            {Array.from(optimisticCompare ?? [])
+              .sort((a, b) => data[b] - data[a])
+              .map((provider) => {
+                const Icon = Icons[provider as keyof typeof Icons] ?? Server
+                const operationalCost =
+                  chainChartData.operationalCosts[provider]
+                const net = data[provider]
+                const revenue = net + operationalCost
 
-              const highlightProvider = provider === "openmesh"
+                const highlightProvider = provider === "openmesh"
 
-              return (
-                <Fragment key={provider.toLowerCase()}>
-                  <div
-                    className={cn(
-                      "inline-flex items-center justify-center rounded-md border p-1",
-                      highlightProvider
-                        ? "border-primary/50 bg-primary/10"
-                        : "bg-gray-100/50",
-                    )}
-                  >
-                    <Icon
+                return (
+                  <Fragment key={provider.toLowerCase()}>
+                    <div
                       className={cn(
-                        "size-5",
-                        highlightProvider ? "text-primary" : "text-gray-500",
+                        "inline-flex items-center justify-center rounded-md border p-1",
+                        highlightProvider
+                          ? "border-primary/50 bg-primary/10"
+                          : "bg-gray-100/50",
                       )}
-                    />
-                  </div>
-                  <p className="self-center text-sm text-gray-500">
-                    ${operationalCost.toFixed(2)}
-                  </p>
-                  <p className="self-center text-sm text-gray-500">
-                    ${revenue.toFixed(2)}
-                  </p>
-                  <p
-                    className={cn(
-                      "self-center text-sm font-medium",
-                      net === 0 && "text-gray-500",
-                      net > 0 && "text-green-600",
-                      net < 0 && "text-red-600",
-                    )}
-                  >
-                    ${net.toFixed(2)}
-                  </p>
-                </Fragment>
-              )
-            })}
+                    >
+                      <Icon
+                        className={cn(
+                          "size-5",
+                          highlightProvider ? "text-primary" : "text-gray-500",
+                        )}
+                      />
+                    </div>
+                    <p className="self-center text-sm text-gray-500">
+                      ${operationalCost.toFixed(2)}
+                    </p>
+                    <p className="self-center text-sm text-gray-500">
+                      ${revenue.toFixed(2)}
+                    </p>
+                    <p
+                      className={cn(
+                        "self-center text-sm font-medium",
+                        net === 0 && "text-gray-500",
+                        net > 0 && "text-green-600",
+                        net < 0 && "text-red-600",
+                      )}
+                    >
+                      ${net.toFixed(2)}
+                    </p>
+                  </Fragment>
+                )
+              })}
           </div>
         </div>
       )
@@ -247,7 +250,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
         <div className="mb-4 flex flex-wrap gap-4">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-56 justify-between">
+              <Button variant="outline" className="w-64 justify-between">
                 <span className="flex items-center gap-1.5">
                   <ChainIcon className="size-4" />
                   {chainName}
@@ -394,29 +397,6 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
               tickFormatter={(value) => `$${value}`}
             />
             <ChartTooltip content={<CustomTooltip />} />
-            <defs>
-              {Array.from(optimisticCompare ?? []).map((provider) => (
-                <linearGradient
-                  key={`gradient-${provider}`}
-                  id={`fill-${provider}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={`var(--color-${provider})`}
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={`var(--color-${provider})`}
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              ))}
-            </defs>
             <Legend />
             {Array.from(optimisticCompare ?? []).map((provider) => (
               <Line
