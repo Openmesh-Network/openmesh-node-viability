@@ -34,6 +34,7 @@ import {
   type ProviderData,
 } from "@/lib/random-generate"
 import { cn } from "@/lib/utils"
+import { format } from "date-fns"
 import { Check, ChevronsUpDown, Server } from "lucide-react"
 import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
@@ -137,7 +138,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
 
       startTransition(() => {
         setOptimisticCompare(newCompareList)
-        router.push(`/?${newParams.toString()}`)
+        router.push(`/?${newParams.toString()}`, { scroll: false })
       })
     },
     [compare, optimisticChain, router, setOptimisticCompare],
@@ -152,7 +153,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
 
       startTransition(() => {
         setOptimisticChain(chain)
-        router.push(`/?${newParams.toString()}`)
+        router.push(`/?${newParams.toString()}`, { scroll: false })
       })
     },
     [optimisticCompare, router, setOptimisticChain],
@@ -171,7 +172,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload as ChartDataItem
       return (
-        <div className="max-w-xs rounded-lg border border-gray-200 bg-white p-2.5 shadow-md dark:border-gray-800 dark:bg-gray-950">
+        <div className="max-w-xs rounded-lg border border-gray-200 bg-white/75 p-2.5 shadow-md backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950">
           <p className="font-medium text-gray-600">{label}</p>
           <p className="text-sm font-semibold">
             <span>{chainName}</span> Price: ${data.price.toFixed(2)}
@@ -196,7 +197,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
                       "inline-flex items-center justify-center rounded-md border p-1",
                       highlightProvider
                         ? "border-primary/50 bg-primary/10"
-                        : "bg-gray-50",
+                        : "bg-gray-100/50",
                     )}
                   >
                     <Icon
@@ -335,15 +336,15 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
               bottom: 0,
             }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid strokeDasharray={2} vertical={false} />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               interval="preserveStartEnd"
-              minTickGap={96}
-              tickFormatter={(value) => value.slice(0, 3)}
+              minTickGap={80}
+              tickFormatter={(value) => format(value, "MMM dd, yyyy")}
             />
             <YAxis
               orientation="right"
@@ -385,9 +386,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
                 name={provider.toUpperCase()}
                 stroke={chartConfig[provider].color}
                 dot={false}
-                activeDot={{ r: 4 }}
-                // fill={`url(#fill-${provider})`}
-                // fillOpacity={0.4}
+                activeDot={{ r: 3 }}
               />
             ))}
           </LineChart>
