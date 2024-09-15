@@ -1,6 +1,13 @@
 "use client"
 
-import { Fragment, useMemo, useState } from "react"
+import {
+  Fragment,
+  startTransition,
+  useCallback,
+  useMemo,
+  useOptimistic,
+} from "react"
+import { useRouter } from "next/navigation"
 import {
   Card,
   CardContent,
@@ -13,11 +20,11 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart"
-import { Toggle } from "@/components/ui/toggle"
 import {
   Chain,
   chainData,
   chainNames,
+  chains,
   providers,
   type Provider,
 } from "@/config/chains"
@@ -27,44 +34,129 @@ import {
   type ProviderData,
 } from "@/lib/random-generate"
 import { cn } from "@/lib/utils"
-import { Server } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Check, ChevronsUpDown, Server } from "lucide-react"
+import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import { Icons } from "./icons"
-
-const chartConfig = {
-  price: {
-    label: "Ethereum Price",
-    color: "var(--chart)",
-  },
-} satisfies ChartConfig
+import { Button } from "./ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 type ChartDataItem = Pick<DailyData, "date" | "price"> & {
   [key in Provider]: ProviderData
 }
 
+function calculateProviderReturns(
+  operationalCost: number,
+  tokenReturn: number,
+  currentPrice: number,
+): ProviderData {
+  return Math.round((currentPrice * tokenReturn - operationalCost) * 100) / 100
+}
+
 type PriceChartProps = {
   chain: Chain
+  compare?: Set<Provider>
 }
-export function PriceChart({ chain }: PriceChartProps) {
-  const chainChartData = chainData[chain]
-  const chainName = chainNames[chain]
-  const [visibleProviders, setVisibleProviders] = useState<Provider[]>(
-    providers.options,
-  )
+export function PriceChart({ chain, compare }: PriceChartProps) {
+  const router = useRouter()
 
-  const sheetData = useMemo(
-    () => generateYearlyData(chainChartData),
+  const [optimisticChain, setOptimisticChain] = useOptimistic(chain)
+  const [optimisticCompare, setOptimisticCompare] = useOptimistic(compare)
+
+  const chainChartData = chainData[optimisticChain]
+  const chainName = chainNames[optimisticChain]
+
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {
+      openmesh: {
+        label: "OPENMESH",
+        color: "hsl(var(--chart-openmesh))",
+      },
+    }
+    optimisticCompare?.forEach((provider) => {
+      config[provider] = {
+        label: provider.toUpperCase(),
+        color: `hsl(var(--chart-${provider.toLowerCase()}))`,
+      }
+    })
+    return config
+  }, [optimisticCompare])
+
+  const yearlyData = useMemo(
+    () => generateYearlyData(chainChartData.basePrice),
     [chainChartData],
   )
 
-  const toggleProvider = (provider: Provider) => {
-    setVisibleProviders((prev) =>
-      prev.includes(provider)
-        ? prev.filter((p) => p !== provider)
-        : [...prev, provider],
-    )
-  }
+  const sheetData = useMemo(() => {
+    return yearlyData.map((value) => {
+      const dataPoint: DailyData & {
+        [key in Provider]?: number
+      } = {
+        ...value,
+        openmesh: calculateProviderReturns(
+          chainChartData.operationalCosts.openmesh,
+          chainChartData.avgReward,
+          value.price,
+        ),
+      }
+      optimisticCompare?.forEach((provider) => {
+        dataPoint[provider] = calculateProviderReturns(
+          chainChartData.operationalCosts[provider],
+          chainChartData.avgReward,
+          value.price,
+        )
+      })
+      return dataPoint
+    })
+  }, [
+    chainChartData.avgReward,
+    chainChartData.operationalCosts,
+    optimisticCompare,
+    yearlyData,
+  ])
+
+  const toggleProvider = useCallback(
+    (provider: Provider) => {
+      const newCompareList = new Set(compare)
+      if (compare?.has(provider)) newCompareList.delete(provider)
+      else newCompareList.add(provider)
+
+      const newParams = new URLSearchParams()
+      newParams.set("chain", optimisticChain)
+      newCompareList?.forEach((provider) =>
+        newParams.append("provider", provider),
+      )
+
+      startTransition(() => {
+        setOptimisticCompare(newCompareList)
+        router.push(`/?${newParams.toString()}`)
+      })
+    },
+    [compare, optimisticChain, router, setOptimisticCompare],
+  )
+
+  const toggleChain = useCallback(
+    (chain: Chain) => {
+      const newParams = new URLSearchParams(
+        Array.from(optimisticCompare ?? []).map((v) => ["provider", v]),
+      )
+      newParams.set("chain", chain)
+
+      startTransition(() => {
+        setOptimisticChain(chain)
+        router.push(`/?${newParams.toString()}`)
+      })
+    },
+    [optimisticCompare, router, setOptimisticChain],
+  )
 
   const CustomTooltip = ({
     active,
@@ -89,10 +181,10 @@ export function PriceChart({ chain }: PriceChartProps) {
             <p>Server Cost</p>
             <p>Revenue</p>
             <p>Net</p>
-            {visibleProviders.map((provider) => {
+            {Array.from(optimisticCompare ?? []).map((provider) => {
               const Icon = Icons[provider as keyof typeof Icons] ?? Server
-              const operationalCost = data[provider].operationalCost
-              const revenue = data[provider].returns * data.price
+              const operationalCost = chainChartData.operationalCosts[provider]
+              const revenue = data[provider]
 
               const highlightProvider = provider === "openmesh"
 
@@ -149,30 +241,91 @@ export function PriceChart({ chain }: PriceChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex flex-wrap gap-3">
-          {providers.options.map((provider) => {
-            const Icon = Icons[provider as keyof typeof Icons]
-            return (
-              <Toggle
-                key={provider}
-                variant="outline"
-                pressed={visibleProviders.includes(provider)}
-                onPressedChange={() => toggleProvider(provider)}
-                aria-label={`Toggle ${provider.toUpperCase()} data`}
-              >
-                <div className="flex items-center space-x-2">
-                  {Icon ? <Icon className="size-4" /> : null}
-                  <span className="capitalize">{provider.toUpperCase()}</span>
-                </div>
-              </Toggle>
-            )
-          })}
+        <div className="mb-4 flex flex-wrap gap-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-56 justify-between">
+                {chainName}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+              <Command>
+                <CommandInput placeholder="Search chain..." />
+                <CommandList>
+                  <CommandEmpty>No chain found.</CommandEmpty>
+                  <CommandGroup>
+                    {chains.options.map((chain) => {
+                      const Icon = Icons[chain as keyof typeof Icons]
+                      return (
+                        <CommandItem
+                          key={chain}
+                          value={chain}
+                          onSelect={() => toggleChain(chain)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 size-4 transition-transform",
+                              optimisticChain === chain
+                                ? "scale-100"
+                                : "scale-0",
+                            )}
+                          />
+                          {Icon ? <Icon className="mr-2 size-4" /> : null}
+                          {chainNames[chain]}
+                        </CommandItem>
+                      )
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-56 justify-between">
+                Select providers
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+              <Command>
+                <CommandInput placeholder="Search provider..." />
+                <CommandList>
+                  <CommandEmpty>No provider found.</CommandEmpty>
+                  <CommandGroup>
+                    {providers.options.map((provider) => {
+                      const Icon = Icons[provider as keyof typeof Icons]
+                      return (
+                        <CommandItem
+                          key={provider}
+                          value={provider}
+                          onSelect={() => toggleProvider(provider)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 size-4 transition-transform",
+                              optimisticCompare?.has(provider)
+                                ? "scale-100"
+                                : "scale-0",
+                            )}
+                          />
+                          {Icon ? <Icon className="mr-2 size-4" /> : null}
+                          {provider.toUpperCase()}
+                        </CommandItem>
+                      )
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <ChartContainer
           className="h-48 w-full sm:h-80 lg:h-[32rem]"
           config={chartConfig}
         >
-          <AreaChart
+          <LineChart
             accessibilityLayer
             data={sheetData}
             margin={{
@@ -201,27 +354,43 @@ export function PriceChart({ chain }: PriceChartProps) {
             />
             <ChartTooltip content={<CustomTooltip />} />
             <defs>
-              <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-price)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-price)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
+              {Array.from(optimisticCompare ?? []).map((provider) => (
+                <linearGradient
+                  key={`gradient-${provider}`}
+                  id={`fill-${provider}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={`var(--color-${provider})`}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={`var(--color-${provider})`}
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              ))}
             </defs>
-            <Area
-              type="monotone"
-              dataKey="price"
-              stroke={chartConfig.price.color}
-              fill="url(#fill)"
-              fillOpacity={0.4}
-            />
-          </AreaChart>
+            <Legend />
+            {Array.from(optimisticCompare ?? []).map((provider) => (
+              <Line
+                key={`line-${provider}`}
+                type="monotone"
+                dataKey={provider}
+                name={provider.toUpperCase()}
+                stroke={chartConfig[provider].color}
+                dot={false}
+                activeDot={{ r: 4 }}
+                // fill={`url(#fill-${provider})`}
+                // fillOpacity={0.4}
+              />
+            ))}
+          </LineChart>
         </ChartContainer>
       </CardContent>
     </Card>

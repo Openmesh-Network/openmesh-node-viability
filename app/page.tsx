@@ -1,9 +1,10 @@
 import Image from "next/image"
 import { PriceChart } from "@/components/price-chart"
-import { chains, type Chain } from "@/config/chains"
+import { chains, providers, type Chain, type Provider } from "@/config/chains"
 import { z } from "zod"
 
 const FALLBACK_CHAIN: Chain = "ethereum"
+const FALLBACK_PROVIDER: Provider = "openmesh"
 
 type PageParams = {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -13,6 +14,16 @@ export default function Home({ searchParams }: PageParams) {
   const parsedChain = chains
     .optional()
     .parse(chain?.replace(/-./g, (match) => match[1].toUpperCase()))
+
+  const compare = z
+    .preprocess((val) => {
+      if (typeof val === "string") {
+        return [val]
+      }
+      return val
+    }, z.string().array().optional())
+    .parse(searchParams.provider)
+  const parsedCompare = z.set(providers).optional().parse(new Set(compare))
 
   return (
     <>
@@ -25,7 +36,14 @@ export default function Home({ searchParams }: PageParams) {
         network security, and scalability.
       </p>
       <div className="mt-8">
-        <PriceChart chain={parsedChain ?? FALLBACK_CHAIN} />
+        <PriceChart
+          chain={parsedChain ?? FALLBACK_CHAIN}
+          compare={
+            parsedCompare?.size
+              ? parsedCompare
+              : new Set<Provider>([FALLBACK_PROVIDER])
+          }
+        />
       </div>
       <div className="mt-12">
         <h2 className="mt-4 font-bold">[Q1/Q2 2024]</h2>

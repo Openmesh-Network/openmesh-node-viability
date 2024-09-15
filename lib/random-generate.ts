@@ -1,25 +1,14 @@
-import { ChainData } from "@/config/chains"
+import { type ChainData } from "@/config/chains"
 
-export type ProviderData = {
-  operationalCost: number
-  returns: number
-}
-
+export type ProviderData = number
 export type DailyData = {
   date: string
   price: number
-  aws: ProviderData
-  gcp: ProviderData
-  azure: ProviderData
-  openmesh: ProviderData
-  bareMetal: ProviderData
 }
 
-export function generateYearlyData({
-  basePrice,
-  avgReward,
-  operationalCosts,
-}: ChainData): DailyData[] {
+export function generateYearlyData(
+  basePrice: ChainData["basePrice"],
+): DailyData[] {
   const yearlyData: DailyData[] = []
   const startDate = new Date()
   startDate.setFullYear(2023)
@@ -44,25 +33,10 @@ export function generateYearlyData({
         year: "numeric",
       }),
       price,
-      aws: calculateProviderData(operationalCosts.aws, avgReward),
-      gcp: calculateProviderData(operationalCosts.gcp, avgReward),
-      azure: calculateProviderData(operationalCosts.azure, avgReward),
-      openmesh: calculateProviderData(operationalCosts.openmesh, avgReward),
-      bareMetal: calculateProviderData(operationalCosts.bareMetal, avgReward),
     }
 
     yearlyData.push(dailyData)
   }
 
   return yearlyData
-}
-
-function calculateProviderData(
-  operationalCost: number,
-  returns: number,
-): ProviderData {
-  return {
-    operationalCost,
-    returns,
-  }
 }
