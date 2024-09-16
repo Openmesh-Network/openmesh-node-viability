@@ -31,7 +31,7 @@ import {
 import { priceData } from "@/config/data"
 import { type DailyData, type ProviderData } from "@/lib/random-generate"
 import { cn, formatNumber } from "@/lib/utils"
-import { format } from "date-fns"
+import { compareAsc, format } from "date-fns"
 import { Check, ChevronsUpDown, PlusCircle, Server } from "lucide-react"
 import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
@@ -91,31 +91,33 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
   }, [optimisticCompare])
 
   const sheetData = useMemo(() => {
-    return Object.entries(priceData[chain]).map(([date, price]) => {
-      const dataPoint: DailyData & {
-        [key in Provider]?: number
-      } = {
-        date,
-        price,
-        openmesh: calculateProviderProfits(
-          chainChartData.operationalCosts.openmesh,
-          chainChartData.avgReward,
+    return Object.entries(priceData[optimisticChain])
+      .sort(([dateA], [dateB]) => compareAsc(dateA, dateB))
+      .map(([date, price]) => {
+        const dataPoint: DailyData & {
+          [key in Provider]?: number
+        } = {
+          date,
           price,
-        ),
-      }
-      optimisticCompare?.forEach((provider) => {
-        dataPoint[provider] = calculateProviderProfits(
-          chainChartData.operationalCosts[provider],
-          chainChartData.avgReward,
-          price,
-        )
+          openmesh: calculateProviderProfits(
+            chainChartData.operationalCosts.openmesh,
+            chainChartData.avgReward,
+            price,
+          ),
+        }
+        optimisticCompare?.forEach((provider) => {
+          dataPoint[provider] = calculateProviderProfits(
+            chainChartData.operationalCosts[provider],
+            chainChartData.avgReward,
+            price,
+          )
+        })
+        return dataPoint
       })
-      return dataPoint
-    })
   }, [
-    chain,
-    chainChartData.avgReward,
+    optimisticChain,
     chainChartData.operationalCosts,
+    chainChartData.avgReward,
     optimisticCompare,
   ])
 
@@ -367,7 +369,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
             data={sheetData}
             margin={{
               top: 10,
-              right: 0,
+              right: 10,
               left: 30,
               bottom: 0,
             }}
