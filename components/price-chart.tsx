@@ -28,12 +28,9 @@ import {
   providers,
   type Provider,
 } from "@/config/chains"
-import {
-  generateYearlyData,
-  type DailyData,
-  type ProviderData,
-} from "@/lib/random-generate"
-import { cn } from "@/lib/utils"
+import { priceData } from "@/config/data"
+import { type DailyData, type ProviderData } from "@/lib/random-generate"
+import { cn, formatNumber } from "@/lib/utils"
 import { format } from "date-fns"
 import { Check, ChevronsUpDown, PlusCircle, Server } from "lucide-react"
 import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
@@ -93,37 +90,33 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
     return config
   }, [optimisticCompare])
 
-  const yearlyData = useMemo(
-    () => generateYearlyData(chainChartData.basePrice),
-    [chainChartData],
-  )
-
   const sheetData = useMemo(() => {
-    return yearlyData.map((value) => {
+    return Object.entries(priceData[chain]).map(([date, price]) => {
       const dataPoint: DailyData & {
         [key in Provider]?: number
       } = {
-        ...value,
+        date,
+        price,
         openmesh: calculateProviderProfits(
           chainChartData.operationalCosts.openmesh,
           chainChartData.avgReward,
-          value.price,
+          price,
         ),
       }
       optimisticCompare?.forEach((provider) => {
         dataPoint[provider] = calculateProviderProfits(
           chainChartData.operationalCosts[provider],
           chainChartData.avgReward,
-          value.price,
+          price,
         )
       })
       return dataPoint
     })
   }, [
+    chain,
     chainChartData.avgReward,
     chainChartData.operationalCosts,
     optimisticCompare,
-    yearlyData,
   ])
 
   const toggleProvider = useCallback(
@@ -213,10 +206,10 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
                       />
                     </div>
                     <p className="self-center text-sm text-gray-500">
-                      ${operationalCost.toFixed(2)}
+                      ${formatNumber(operationalCost)}
                     </p>
                     <p className="self-center text-sm text-gray-500">
-                      ${revenue.toFixed(2)}
+                      ${formatNumber(revenue)}
                     </p>
                     <p
                       className={cn(
@@ -226,7 +219,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
                         net < 0 && "text-red-600",
                       )}
                     >
-                      ${net.toFixed(2)}
+                      ${formatNumber(net)}
                     </p>
                   </Fragment>
                 )
@@ -394,7 +387,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => `$${formatNumber(value)}`}
             />
             <ChartTooltip content={<CustomTooltip />} />
             <Legend />

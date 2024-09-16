@@ -13,7 +13,7 @@ export default function Home({ searchParams }: PageParams) {
   const chain = z.string().optional().parse(searchParams.chain)
   const parsedChain = chains
     .optional()
-    .parse(chain?.replace(/-./g, (match) => match[1].toUpperCase()))
+    .safeParse(chain?.replace(/-./g, (match) => match[1].toUpperCase()))
 
   const compare = z
     .preprocess((val) => {
@@ -23,7 +23,7 @@ export default function Home({ searchParams }: PageParams) {
       return val
     }, z.string().array().optional())
     .parse(searchParams.provider)
-  const parsedCompare = z.set(providers).optional().parse(new Set(compare))
+  const parsedCompare = z.set(providers).optional().safeParse(new Set(compare))
 
   return (
     <>
@@ -37,10 +37,10 @@ export default function Home({ searchParams }: PageParams) {
       </p>
       <div className="mt-8">
         <PriceChart
-          chain={parsedChain ?? FALLBACK_CHAIN}
+          chain={parsedChain.data ?? FALLBACK_CHAIN}
           compare={
-            parsedCompare?.size
-              ? parsedCompare
+            parsedCompare.data?.size
+              ? parsedCompare.data
               : new Set<Provider>([FALLBACK_PROVIDER])
           }
         />
