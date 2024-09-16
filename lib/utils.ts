@@ -6,7 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatNumber(number: number) {
-  if (number >= 1000) {
+  const absNumber = Math.abs(number)
+  if (absNumber >= 1000) {
     return (number / 1000).toFixed(2).replace(/\.0$/, "") + "k"
   }
   return number.toFixed(2)
