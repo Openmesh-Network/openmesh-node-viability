@@ -6,6 +6,7 @@ import {
   useCallback,
   useMemo,
   useOptimistic,
+  useState,
 } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -47,6 +48,7 @@ import {
 } from "./ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { Separator } from "./ui/separator"
+import { Toggle } from "./ui/toggle"
 
 type ChartDataItem = Pick<DailyData, "date" | "price"> & {
   [key in Provider]: ProviderData
@@ -63,12 +65,16 @@ function calculateProviderProfits(
 type PriceChartProps = {
   chain: Chain
   compare?: Set<Provider>
+  accumulative?: boolean
 }
-export function PriceChart({ chain, compare }: PriceChartProps) {
+export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
   const router = useRouter()
 
   const [optimisticChain, setOptimisticChain] = useOptimistic(chain)
   const [optimisticCompare, setOptimisticCompare] = useOptimistic(compare)
+  const [optimisticAccumulative, setOptimisticAccumulative] = useState(
+    accumulative === undefined ? false : accumulative,
+  )
 
   const chainChartData = chainData[optimisticChain]
   const chainName = chainNames[optimisticChain]
@@ -120,6 +126,28 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
     chainChartData.avgReward,
     optimisticCompare,
   ])
+
+  const accSheetData = useMemo(() => {
+    const providersArray = Object.values(providers.Values)
+    const providerSum = providersArray.reduce(
+      (acc, provider) => {
+        acc[provider] = 0
+        return acc
+      },
+      {} as { [key in Provider]: number },
+    )
+
+    return sheetData.map((originalDataPoint) => {
+      const dataPoint = { ...originalDataPoint }
+      providersArray.forEach((provider) => {
+        if (dataPoint[provider] !== undefined) {
+          providerSum[provider] += dataPoint[provider]
+          dataPoint[provider] = providerSum[provider]
+        }
+      })
+      return dataPoint
+    })
+  }, [sheetData])
 
   const toggleProvider = useCallback(
     (provider: Provider) => {
@@ -359,6 +387,13 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
               </Command>
             </PopoverContent>
           </Popover>
+          <Toggle
+            variant="outline"
+            pressed={optimisticAccumulative}
+            onPressedChange={setOptimisticAccumulative}
+          >
+            <span>Accumulative</span>
+          </Toggle>
         </div>
         <ChartContainer
           className="h-56 w-full sm:h-80 lg:h-[32rem]"
@@ -366,7 +401,7 @@ export function PriceChart({ chain, compare }: PriceChartProps) {
         >
           <LineChart
             accessibilityLayer
-            data={sheetData}
+            data={optimisticAccumulative ? accSheetData : sheetData}
             margin={{
               top: 10,
               right: 10,

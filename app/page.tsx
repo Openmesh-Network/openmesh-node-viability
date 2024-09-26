@@ -27,14 +27,34 @@ export default function Home({ searchParams }: PageParams) {
 
   return (
     <>
-      <h1 className="text-3xl font-bold lg:text-4xl">
-        Web3 Node-as-a-service economics
-      </h1>
-      <p className="text-xl font-light text-gray-600 lg:text-2xl">
-        Node operation economic viability is key to maintaining decentralization
-        and efficiency in the Web3 ecosystem, ensuring sustainable incentives,
-        network security, and scalability.
-      </p>
+      <div className="flex flex-col gap-y-5">
+        <h1 className="text-2xl font-bold lg:text-3xl">
+          Web3 Node-as-a-Service Economics & Viability Comparison
+        </h1>
+        <p className="text-sm font-light text-gray-600 lg:text-base">
+          No network can truly be considered decentralized if it relies on fewer
+          independent node operators than those hosted in centralized data
+          centers. The viability of node operations must be sustainable for
+          individuals to continue running nodes. This is crucial for maintaining
+          decentralization and efficiency in the Web3 ecosystem, ensuring
+          sustainable incentives, network security, and scalability.
+        </p>
+        <p className="text-sm font-light text-gray-600 lg:text-base">
+          If operating costs—such as server and electricity expenses—exceed the
+          rewards from node validation, why would anyone continue running a
+          validator node? Many node operators assume they will eventually see a
+          return, but supporting decentralization alone is not enough—this is
+          merely wishful thinking. Most Web3 projects default to using AWS as
+          their cloud provider for node operations due to convenience, or they
+          rely on private node operators to manage the servers. As a user, you
+          are essentially renting validator rights and capacities for a fee. So,
+          where is the decentralization?
+        </p>
+        <p className="text-sm font-light text-gray-600 lg:text-base">
+          At Openmesh, with our immutable decentralized cloud and permissionless
+          VMs, we are here to change this.
+        </p>
+      </div>
       <div className="mt-8">
         <PriceChart
           chain={parsedChain.data ?? FALLBACK_CHAIN}
