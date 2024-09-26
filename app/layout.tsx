@@ -22,9 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} flex flex-col font-sans antialiased md:flex-row`}
+        className={`${geistSans.variable} flex flex-col bg-gray-50 font-sans antialiased md:flex-row`}
       >
-        <main className="grow bg-gray-50">
+        <main className="grow">
           <div className="container my-20">{children}</div>
         </main>
       </body>
