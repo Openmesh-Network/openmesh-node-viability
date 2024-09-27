@@ -6,6 +6,7 @@ import {
   useCallback,
   useMemo,
   useOptimistic,
+  useRef,
   useState,
 } from "react"
 import { useRouter } from "next/navigation"
@@ -262,7 +263,10 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
   }
 
   return (
-    <Card className="max-md:-mx-4 max-md:rounded-none">
+    <Card
+      className="max-md:-mx-4 max-md:rounded-none"
+      onFocus={(e) => e.preventDefault()}
+    >
       <CardHeader className="max-md:px-4">
         <CardTitle>{chainName} Price Chart</CardTitle>
         <CardDescription>
@@ -271,7 +275,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
       </CardHeader>
       <CardContent className="max-md:px-4">
         <div className="mb-4 flex flex-wrap gap-4">
-          <Popover modal={false}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-64 justify-between">
                 <span className="flex items-center gap-1.5">
@@ -313,7 +317,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
               </Command>
             </PopoverContent>
           </Popover>
-          <Popover modal={false}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
