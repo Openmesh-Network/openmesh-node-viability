@@ -262,21 +262,22 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
   }
 
   return (
-    <Card
-      className="max-md:-mx-4 max-md:rounded-none"
-      onFocus={(e) => e.preventDefault()}
-    >
+    <Card className="max-md:-mx-4 max-md:rounded-none" autoFocus={false}>
       <CardHeader className="max-md:px-4">
         <CardTitle>{chainName} Price Chart</CardTitle>
         <CardDescription>
           Showing {chainName} price and corresponding provider revenue.
         </CardDescription>
       </CardHeader>
-      <CardContent className="max-md:px-4">
-        <div className="mb-4 flex flex-wrap gap-4">
+      <CardContent className="max-md:px-4" autoFocus={false}>
+        <div className="mb-4 flex flex-wrap gap-4" autoFocus={false}>
           <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-64 justify-between">
+            <PopoverTrigger asChild autoFocus={false}>
+              <Button
+                variant="outline"
+                className="w-64 justify-between"
+                autoFocus={false}
+              >
                 <span className="flex items-center gap-1.5">
                   <ChainIcon className="size-4" />
                   {chainName}
@@ -284,12 +285,15 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-              <Command>
-                <CommandInput placeholder="Search chain..." />
-                <CommandList>
+            <PopoverContent
+              className="w-[--radix-popover-trigger-width] p-0"
+              autoFocus={false}
+            >
+              <Command autoFocus={false}>
+                <CommandInput placeholder="Search chain..." autoFocus={false} />
+                <CommandList autoFocus={false}>
                   <CommandEmpty>No chain found.</CommandEmpty>
-                  <CommandGroup>
+                  <CommandGroup autoFocus={false}>
                     {chains.options.map((chain) => {
                       const Icon = Icons[chain as keyof typeof Icons]
                       return (
@@ -297,6 +301,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                           key={chain}
                           value={chain}
                           onSelect={() => toggleChain(chain)}
+                          autoFocus={false}
                         >
                           <Check
                             className={cn(
@@ -317,13 +322,14 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
             </PopoverContent>
           </Popover>
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild autoFocus={false}>
               <Button
                 variant="outline"
                 className={cn(
                   "min-w-56 justify-between",
                   optimisticCompare?.size && "border-dashed",
                 )}
+                autoFocus={false}
               >
                 <span className="flex">
                   <span className="flex items-center gap-2">
@@ -358,12 +364,18 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-              <Command>
-                <CommandInput placeholder="Search provider..." />
-                <CommandList>
+            <PopoverContent
+              className="w-[--radix-popover-trigger-width] p-0"
+              autoFocus={false}
+            >
+              <Command autoFocus={false}>
+                <CommandInput
+                  placeholder="Search provider..."
+                  autoFocus={false}
+                />
+                <CommandList autoFocus={false}>
                   <CommandEmpty>No provider found.</CommandEmpty>
-                  <CommandGroup>
+                  <CommandGroup autoFocus={false}>
                     {providers.options.map((provider) => {
                       const Icon = Icons[provider as keyof typeof Icons]
                       return (
@@ -371,6 +383,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                           key={provider}
                           value={provider}
                           onSelect={() => toggleProvider(provider)}
+                          autoFocus={false}
                         >
                           <Check
                             className={cn(
