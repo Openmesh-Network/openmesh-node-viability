@@ -276,9 +276,19 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
         <div className="mb-4 flex flex-wrap gap-4">
           <Popover
             onOpenChange={(o) => {
-              // if (o) {
-              //   graphRef?.current?.scrollIntoView({ behavior: "smooth" })
-              // }
+              if (o) {
+                const main = document.getElementById(
+                  "openmesh-node-viability-main",
+                )
+                const graph = graphRef?.current
+
+                if (main && graph) {
+                  scrollTo({
+                    behavior: "smooth",
+                    top: graph.offsetTop - main.offsetTop,
+                  })
+                }
+              }
             }}
           >
             <PopoverTrigger asChild>
@@ -324,9 +334,19 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
           </Popover>
           <Popover
             onOpenChange={(o) => {
-              // if (o) {
-              //   graphRef?.current?.scrollIntoView({ behavior: "smooth" })
-              // }
+              if (o) {
+                const main = document.getElementById(
+                  "openmesh-node-viability-main",
+                )
+                const graph = graphRef?.current
+
+                if (main && graph) {
+                  scrollTo({
+                    behavior: "smooth",
+                    top: graph.offsetTop - main.offsetTop,
+                  })
+                }
+              }
             }}
           >
             <PopoverTrigger asChild>
