@@ -6,6 +6,7 @@ import {
   useCallback,
   useMemo,
   useOptimistic,
+  useRef,
   useState,
 } from "react"
 import { useRouter } from "next/navigation"
@@ -261,8 +262,10 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
     return null
   }
 
+  const graphRef = useRef<HTMLDivElement | null>(null)
+
   return (
-    <Card className="max-md:-mx-4 max-md:rounded-none">
+    <Card ref={graphRef} className="max-md:-mx-4 max-md:rounded-none">
       <CardHeader className="max-md:px-4">
         <CardTitle>{chainName} Price Chart</CardTitle>
         <CardDescription>
@@ -271,7 +274,13 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
       </CardHeader>
       <CardContent className="max-md:px-4">
         <div className="mb-4 flex flex-wrap gap-4">
-          <Popover>
+          <Popover
+            onOpenChange={(o) => {
+              if (o) {
+                graphRef?.current?.scrollIntoView({ behavior: "smooth" })
+              }
+            }}
+          >
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-64 justify-between">
                 <span className="flex items-center gap-1.5">
@@ -281,11 +290,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent
-              className="w-[--radix-popover-trigger-width] p-0"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              onCloseAutoFocus={(e) => e.preventDefault()}
-            >
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Search chain..." />
                 <CommandList>
@@ -317,7 +322,13 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
               </Command>
             </PopoverContent>
           </Popover>
-          <Popover>
+          <Popover
+            onOpenChange={(o) => {
+              if (o) {
+                graphRef?.current?.scrollIntoView({ behavior: "smooth" })
+              }
+            }}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -359,11 +370,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent
-              className="w-[--radix-popover-trigger-width] p-0"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              onCloseAutoFocus={(e) => e.preventDefault()}
-            >
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
               <Command>
                 <CommandInput placeholder="Search provider..." />
                 <CommandList>
