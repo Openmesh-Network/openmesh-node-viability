@@ -276,9 +276,9 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
         <div className="mb-4 flex flex-wrap gap-4">
           <Popover
             onOpenChange={(o) => {
-              if (o) {
-                graphRef?.current?.scrollIntoView({ behavior: "smooth" })
-              }
+              // if (o) {
+              //   graphRef?.current?.scrollIntoView({ behavior: "smooth" })
+              // }
             }}
           >
             <PopoverTrigger asChild>
@@ -324,9 +324,9 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
           </Popover>
           <Popover
             onOpenChange={(o) => {
-              if (o) {
-                graphRef?.current?.scrollIntoView({ behavior: "smooth" })
-              }
+              // if (o) {
+              //   graphRef?.current?.scrollIntoView({ behavior: "smooth" })
+              // }
             }}
           >
             <PopoverTrigger asChild>
