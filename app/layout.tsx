@@ -24,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} flex flex-col bg-gray-50 font-sans antialiased md:flex-row`}
       >
-        <main id="openmesh-node-viability-main" className="grow">
+        <main className="grow">
           <div className="container my-20">{children}</div>
         </main>
       </body>

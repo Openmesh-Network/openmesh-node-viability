@@ -6,7 +6,6 @@ import {
   useCallback,
   useMemo,
   useOptimistic,
-  useRef,
   useState,
 } from "react"
 import { useRouter } from "next/navigation"
@@ -262,10 +261,11 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
     return null
   }
 
-  const graphRef = useRef<HTMLDivElement | null>(null)
+  const [chainsOpen, setChainsOpen] = useState<boolean>(false)
+  const [providersOpen, setProvidersOpen] = useState<boolean>(false)
 
   return (
-    <Card ref={graphRef} className="max-md:-mx-4 max-md:rounded-none">
+    <Card className="max-md:-mx-4 max-md:rounded-none">
       <CardHeader className="max-md:px-4">
         <CardTitle>{chainName} Price Chart</CardTitle>
         <CardDescription>
@@ -274,23 +274,7 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
       </CardHeader>
       <CardContent className="max-md:px-4">
         <div className="mb-4 flex flex-wrap gap-4">
-          <Popover
-            onOpenChange={(o) => {
-              if (o) {
-                const main = document.getElementById(
-                  "openmesh-node-viability-main",
-                )
-                const graph = graphRef?.current
-
-                if (main && graph) {
-                  scrollTo({
-                    behavior: "smooth",
-                    top: graph.offsetTop - main.offsetTop,
-                  })
-                }
-              }
-            }}
-          >
+          <Popover onOpenChange={setChainsOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-64 justify-between">
                 <span className="flex items-center gap-1.5">
@@ -300,55 +284,43 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-              <Command>
-                <CommandInput placeholder="Search chain..." />
-                <CommandList>
-                  <CommandEmpty>No chain found.</CommandEmpty>
-                  <CommandGroup>
-                    {chains.options.map((chain) => {
-                      const Icon = Icons[chain as keyof typeof Icons]
-                      return (
-                        <CommandItem
-                          key={chain}
-                          value={chain}
-                          onSelect={() => toggleChain(chain)}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 size-4 transition-transform",
-                              optimisticChain === chain
-                                ? "scale-100"
-                                : "scale-0",
-                            )}
-                          />
-                          {Icon ? <Icon className="mr-2 size-4" /> : null}
-                          {chainNames[chain]}
-                        </CommandItem>
-                      )
-                    })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
+            <PopoverContent
+              className={`w-[--radix-popover-trigger-width] p-0 ${chainsOpen || "border-0"}`}
+            >
+              {chainsOpen && (
+                <Command>
+                  <CommandInput placeholder="Search chain..." />
+                  <CommandList>
+                    <CommandEmpty>No chain found.</CommandEmpty>
+                    <CommandGroup>
+                      {chains.options.map((chain) => {
+                        const Icon = Icons[chain as keyof typeof Icons]
+                        return (
+                          <CommandItem
+                            key={chain}
+                            value={chain}
+                            onSelect={() => toggleChain(chain)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 size-4 transition-transform",
+                                optimisticChain === chain
+                                  ? "scale-100"
+                                  : "scale-0",
+                              )}
+                            />
+                            {Icon ? <Icon className="mr-2 size-4" /> : null}
+                            {chainNames[chain]}
+                          </CommandItem>
+                        )
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              )}
             </PopoverContent>
           </Popover>
-          <Popover
-            onOpenChange={(o) => {
-              if (o) {
-                const main = document.getElementById(
-                  "openmesh-node-viability-main",
-                )
-                const graph = graphRef?.current
-
-                if (main && graph) {
-                  scrollTo({
-                    behavior: "smooth",
-                    top: graph.offsetTop - main.offsetTop,
-                  })
-                }
-              }
-            }}
-          >
+          <Popover onOpenChange={setProvidersOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -390,36 +362,40 @@ export function PriceChart({ chain, compare, accumulative }: PriceChartProps) {
                 </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-              <Command>
-                <CommandInput placeholder="Search provider..." />
-                <CommandList>
-                  <CommandEmpty>No provider found.</CommandEmpty>
-                  <CommandGroup>
-                    {providers.options.map((provider) => {
-                      const Icon = Icons[provider as keyof typeof Icons]
-                      return (
-                        <CommandItem
-                          key={provider}
-                          value={provider}
-                          onSelect={() => toggleProvider(provider)}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 size-4 transition-transform",
-                              optimisticCompare?.has(provider)
-                                ? "scale-100"
-                                : "scale-0",
-                            )}
-                          />
-                          {Icon ? <Icon className="mr-2 size-4" /> : null}
-                          {provider.toUpperCase()}
-                        </CommandItem>
-                      )
-                    })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
+            <PopoverContent
+              className={`w-[--radix-popover-trigger-width] p-0 ${providersOpen || "border-0"}`}
+            >
+              {providersOpen && (
+                <Command>
+                  <CommandInput placeholder="Search provider..." />
+                  <CommandList>
+                    <CommandEmpty>No provider found.</CommandEmpty>
+                    <CommandGroup>
+                      {providers.options.map((provider) => {
+                        const Icon = Icons[provider as keyof typeof Icons]
+                        return (
+                          <CommandItem
+                            key={provider}
+                            value={provider}
+                            onSelect={() => toggleProvider(provider)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 size-4 transition-transform",
+                                optimisticCompare?.has(provider)
+                                  ? "scale-100"
+                                  : "scale-0",
+                              )}
+                            />
+                            {Icon ? <Icon className="mr-2 size-4" /> : null}
+                            {provider.toUpperCase()}
+                          </CommandItem>
+                        )
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              )}
             </PopoverContent>
           </Popover>
           <Toggle
