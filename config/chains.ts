@@ -50,7 +50,7 @@ export type ChainData = {
 }
 export const chainData: Record<Chain, ChainData> = {
   ethereum: {
-    avgReward: 0.13,
+    avgReward: 0.1517333333,
     operationalCosts: {
       aws: 210.0,
       gcp: 205.0,
@@ -80,7 +80,7 @@ export const chainData: Record<Chain, ChainData> = {
     },
   },
   avalanche: {
-    avgReward: 14.17,
+    avgReward: 12.66666667,
     operationalCosts: {
       aws: 176.66,
       gcp: 160.0,
@@ -110,7 +110,7 @@ export const chainData: Record<Chain, ChainData> = {
     },
   },
   fantom: {
-    avgReward: 5350.0,
+    avgReward: 250,
     operationalCosts: {
       aws: 385.0,
       gcp: 425.0,
